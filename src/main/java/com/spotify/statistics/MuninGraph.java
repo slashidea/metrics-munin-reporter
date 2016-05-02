@@ -15,13 +15,12 @@
  */
 package com.spotify.statistics;
 
-import com.yammer.metrics.core.MetricName;
-import org.apache.commons.lang.Validate;
+import static com.spotify.statistics.MuninUtil.validateMuninName;
 
 import java.util.ArrayList;
 import java.util.List;
 
-import static com.spotify.statistics.MuninUtil.validateMuninName;
+import org.apache.commons.lang.Validate;
 
 public class MuninGraph {
 
@@ -184,30 +183,30 @@ public class MuninGraph {
       return this;
     }
 
-    public Builder dataSource(final MetricName metricName) {
+    public Builder dataSource(final String metricName) {
       return dataSource(metricName, null);
     }
 
-    public Builder dataSource(final MetricName metricName, final String label) {
+    public Builder dataSource(final String metricName, final String label) {
       return dataSource(metricName, label, (Property) null);
     }
 
-    public Builder dataSource(final MetricName metricName, final String label,
+    public Builder dataSource(final String metricName, final String label,
                               final String muninName) {
       return dataSource(metricName, label, new MuninDataSourceConfig().withName(muninName));
     }
 
-    public Builder dataSource(final MetricName metricName, final String label,
+    public Builder dataSource(final String metricName, final String label,
                               final Property property) {
       return dataSource(metricName, label, property, new MuninDataSourceConfig());
     }
 
-    public Builder dataSource(final MetricName metricName, final String label,
+    public Builder dataSource(final String metricName, final String label,
                               final MuninDataSourceConfig dataSourceConfig) {
       return dataSource(metricName, label, null, dataSourceConfig);
     }
 
-    public Builder dataSource(final MetricName metricName, final String label,
+    public Builder dataSource(final String metricName, final String label,
                               final Property property,
                               final MuninDataSourceConfig dataSourceConfig) {
       dataSources.add(dataSourceFactory.forMetric(metricName, label, property, dataSourceConfig));
@@ -221,9 +220,9 @@ public class MuninGraph {
      * @param filter The filter used to match against.
      * @return The builder
      */
-    public Builder wildcardDataSource(final MetricFilter filter) {
-      return wildcardDataSource(filter, null, null, new MuninDataSourceConfig());
-    }
+//    public Builder wildcardDataSource(final MetricFilter filter) {
+//      return wildcardDataSource(filter, null, null, new MuninDataSourceConfig());
+//    }
 
     /**
      * Define a data source that will match any metric that matches the supplied filter. Useful for
@@ -233,9 +232,9 @@ public class MuninGraph {
      * @param property The property of the metric to use for graphing
      * @return The builder
      */
-    public Builder wildcardDataSource(final MetricFilter filter, final Property property) {
-      return wildcardDataSource(filter, null, property, new MuninDataSourceConfig());
-    }
+//    public Builder wildcardDataSource(final MetricFilter filter, final Property property) {
+//      return wildcardDataSource(filter, null, property, new MuninDataSourceConfig());
+//    }
 
     /**
      * Define a data source that will match any metric that matches the supplied filter. Useful for
@@ -246,9 +245,9 @@ public class MuninGraph {
      *                    replaced by the metric name.
      * @return The builder
      */
-    public Builder wildcardDataSource(final MetricFilter filter, final String labelFormat) {
-      return wildcardDataSource(filter, labelFormat, null, new MuninDataSourceConfig());
-    }
+//    public Builder wildcardDataSource(final MetricFilter filter, final String labelFormat) {
+//      return wildcardDataSource(filter, labelFormat, null, new MuninDataSourceConfig());
+//    }
 
     /**
      * Define a data source that will match any metric that matches the supplied filter. Useful for
@@ -260,14 +259,14 @@ public class MuninGraph {
      * @param property The property of the metric to use for graphing
      * @return The builder
      */
-    public Builder wildcardDataSource(final MetricFilter filter,
-                                      final String labelFormat,
-                                      final Property property,
-                                      final MuninDataSourceConfig dataSourceConfig) {
-      dataSources.add(dataSourceFactory.forWildcard(filter, labelFormat, property,
-                                                    dataSourceConfig));
-      return this;
-    }
+//    public Builder wildcardDataSource(final MetricFilter filter,
+//                                      final String labelFormat,
+//                                      final Property property,
+//                                      final MuninDataSourceConfig dataSourceConfig) {
+//      dataSources.add(dataSourceFactory.forWildcard(filter, labelFormat, property,
+//                                                    dataSourceConfig));
+//      return this;
+//    }
 
     /**
      * Define a data source that will match any metric with the provided metricType. Useful for
@@ -277,9 +276,9 @@ public class MuninGraph {
      * @param metricType The type part of the {@link MetricName} that will be matched against
      * @return The builder
      */
-    public Builder wildcardDataSource(final String metricGroup, final String metricType) {
-      return wildcardDataSource(metricGroup, metricType, (Property) null);
-    }
+//    public Builder wildcardDataSource(final String metricGroup, final String metricType) {
+//      return wildcardDataSource(metricGroup, metricType, (Property) null);
+//    }
 
     /**
      * Define a data source that will match any metric with the provided metricType. Useful for
@@ -290,12 +289,12 @@ public class MuninGraph {
      * @param property The property of the metric to use for graphing
      * @return The builder
      */
-    public Builder wildcardDataSource(final String metricGroup, final String metricType,
-                                      final Property property) {
-      dataSources.add(dataSourceFactory.forWildcard(metricGroup, metricType, null, property,
-        new MuninDataSourceConfig()));
-      return this;
-    }
+//    public Builder wildcardDataSource(final String metricGroup, final String metricType,
+//                                      final Property property) {
+//      dataSources.add(dataSourceFactory.forWildcard(metricGroup, metricType, null, property,
+//        new MuninDataSourceConfig()));
+//      return this;
+//    }
 
     /**
      * Define a data source that will match any metric with the provided metricType. Useful for
@@ -307,11 +306,11 @@ public class MuninGraph {
      *                    replaced by the metric name
      * @return The builder
      */
-    public Builder wildcardDataSource(final String metricGroup, final String metricType,
-                                      final String labelFormat) {
-      return wildcardDataSource(metricGroup, metricType, labelFormat, null,
-        new MuninDataSourceConfig());
-    }
+//    public Builder wildcardDataSource(final String metricGroup, final String metricType,
+//                                      final String labelFormat) {
+//      return wildcardDataSource(metricGroup, metricType, labelFormat, null,
+//        new MuninDataSourceConfig());
+//    }
 
     /**
      * Define a data source that will match any metric with the provided metricType. Useful for
@@ -325,12 +324,12 @@ public class MuninGraph {
      *                         metrics
      * @return The builder
      */
-    public Builder wildcardDataSource(final String metricGroup, final String metricType,
-                                      final String labelFormat,
-                                      final MuninDataSourceConfig dataSourceConfig) {
-      return wildcardDataSource(metricGroup, metricType, labelFormat, null,
-                                dataSourceConfig);
-    }
+//    public Builder wildcardDataSource(final String metricGroup, final String metricType,
+//                                      final String labelFormat,
+//                                      final MuninDataSourceConfig dataSourceConfig) {
+//      return wildcardDataSource(metricGroup, metricType, labelFormat, null,
+//                                dataSourceConfig);
+//    }
 
     /**
      * Define a data source that will match any metric with the provided metricType. Useful for
@@ -345,14 +344,14 @@ public class MuninGraph {
      *                         metrics
      * @return The builder
      */
-    public Builder wildcardDataSource(final String metricGroup, final String metricType,
-                                      final String labelFormat,
-                                      final Property property,
-                                      final MuninDataSourceConfig dataSourceConfig) {
-      dataSources.add(dataSourceFactory.forWildcard(metricGroup, metricType, labelFormat,
-        property, dataSourceConfig));
-      return this;
-    }
+//    public Builder wildcardDataSource(final String metricGroup, final String metricType,
+//                                      final String labelFormat,
+//                                      final Property property,
+//                                      final MuninDataSourceConfig dataSourceConfig) {
+//      dataSources.add(dataSourceFactory.forWildcard(metricGroup, metricType, labelFormat,
+//        property, dataSourceConfig));
+//      return this;
+//    }
 
     public Builder args(final String args) {
       this.args = args;

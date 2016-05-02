@@ -17,7 +17,6 @@
 package com.spotify.statistics;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -27,7 +26,7 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.yammer.metrics.core.MetricName;
+import com.codahale.metrics.MetricRegistry;
 
 public class MuninDataSourceFactoryTest {
 
@@ -38,8 +37,7 @@ public class MuninDataSourceFactoryTest {
   @Test
   public void testForMetric() {
     final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
-    final MetricName name = mock(MetricName.class);
-    when(name.getName()).thenReturn("name");
+    final String name = MetricRegistry.name("t1");
 
     final Property property = mock(Property.class);
 
@@ -76,8 +74,7 @@ public class MuninDataSourceFactoryTest {
   @Test
   public void testForMetricNullLabel() {
     final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
-    final MetricName name = mock(MetricName.class);
-    when(name.getName()).thenReturn("name");
+    final String name = MetricRegistry.name("t1");
 
     final Property property = mock(Property.class);
 
@@ -92,117 +89,7 @@ public class MuninDataSourceFactoryTest {
     final MuninDataSource dataSource = dataSourceFactory.forMetric(name, null, property,
                                                                    dataSourceConfig);
 
-    assertEquals("name", dataSource.getLabel(name));
-  }
-
-  /**
-   * Test {@link MuninDataSourceFactory#forWildcard(String, String, String, Property,
-   * MuninDataSourceConfig)}.
-   */
-  @Test
-  public void testForWildcardGroupAndType() {
-    final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
-    final MetricName name = mock(MetricName.class);
-    when(name.getName()).thenReturn("name");
-
-    final Property property = mock(Property.class);
-
-    final MuninDataSourceConfig dataSourceConfig = mock(MuninDataSourceConfig.class);
-    when(dataSourceConfig.getCdef()).thenReturn("cdef");
-    when(dataSourceConfig.getColor()).thenReturn("color");
-    when(dataSourceConfig.getDraw()).thenReturn("draw");
-    when(dataSourceConfig.getLine()).thenReturn("line");
-    when(dataSourceConfig.getMin()).thenReturn(42);
-    when(dataSourceConfig.getStack()).thenReturn("stack");
-
-    final MuninDataSource dataSource = dataSourceFactory.forWildcard("group", "type", "labelfmt",
-                                                                     property, dataSourceConfig);
-
-    assertTrue(dataSource instanceof WildcardMuninDataSource);
-    final WildcardMuninDataSource wildcardDataSource = (WildcardMuninDataSource)dataSource;
-    assertEquals(new MuninDataSourceFactory.GroupAndTypeFilter("group", "type"),
-                 wildcardDataSource.getFilter());
-
-    assertEquals(property, dataSource.getPropertyOrNull());
-    assertEquals("labelfmt", dataSource.getLabel(name));
-
-    verify(dataSourceConfig).getCdef();
-    assertEquals("cdef", dataSource.getCdef());
-    verify(dataSourceConfig).getColor();
-    assertEquals("color", dataSource.getColor());
-    verify(dataSourceConfig).getDraw();
-    assertEquals("draw", dataSource.getDraw());
-    verify(dataSourceConfig).getLine();
-    assertEquals("line", dataSource.getLine());
-    verify(dataSourceConfig).getMin();
-    assertEquals(42, dataSource.getMin());
-    verify(dataSourceConfig).getStack();
-    assertEquals("stack", dataSource.getStack());
-  }
-
-  /**
-   * Test {@link MuninDataSourceFactory#forWildcard(MetricFilter, String, Property,
-   * MuninDataSourceConfig)}.
-   */
-  @Test
-  public void testForWildcardFilter() {
-    final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
-    final MetricName name = mock(MetricName.class);
-    when(name.getName()).thenReturn("name");
-
-    final MetricFilter filter = mock(MetricFilter.class);
-    final Property property = mock(Property.class);
-
-    final MuninDataSourceConfig dataSourceConfig = mock(MuninDataSourceConfig.class);
-    when(dataSourceConfig.getCdef()).thenReturn("cdef");
-    when(dataSourceConfig.getColor()).thenReturn("color");
-    when(dataSourceConfig.getDraw()).thenReturn("draw");
-    when(dataSourceConfig.getLine()).thenReturn("line");
-    when(dataSourceConfig.getMin()).thenReturn(42);
-    when(dataSourceConfig.getStack()).thenReturn("stack");
-
-    final MuninDataSource dataSource = dataSourceFactory.forWildcard(filter, "labelfmt", property,
-                                                                     dataSourceConfig);
-
-    assertTrue(dataSource instanceof WildcardMuninDataSource);
-    final WildcardMuninDataSource wildcardDataSource = (WildcardMuninDataSource)dataSource;
-    assertEquals(filter, wildcardDataSource.getFilter());
-
-    assertEquals(property, dataSource.getPropertyOrNull());
-    assertEquals("labelfmt", dataSource.getLabel(name));
-
-    verify(dataSourceConfig).getCdef();
-    assertEquals("cdef", dataSource.getCdef());
-    verify(dataSourceConfig).getColor();
-    assertEquals("color", dataSource.getColor());
-    verify(dataSourceConfig).getDraw();
-    assertEquals("draw", dataSource.getDraw());
-    verify(dataSourceConfig).getLine();
-    assertEquals("line", dataSource.getLine());
-    verify(dataSourceConfig).getMin();
-    assertEquals(42, dataSource.getMin());
-    verify(dataSourceConfig).getStack();
-    assertEquals("stack", dataSource.getStack());
-  }
-
-  @Test
-  public void testGroupAndTypeFilter() {
-    final MuninDataSourceFactory.GroupAndTypeFilter filter =
-        new MuninDataSourceFactory.GroupAndTypeFilter("g", "t");
-
-    final MetricName name1 = mock(MetricName.class);
-    when(name1.getGroup()).thenReturn("g");
-    when(name1.getType()).thenReturn("t");
-    final MetricName name2 = mock(MetricName.class);
-    when(name2.getGroup()).thenReturn("g");
-    when(name2.getType()).thenReturn("x");
-    final MetricName name3 = mock(MetricName.class);
-    when(name3.getGroup()).thenReturn("x");
-    when(name3.getType()).thenReturn("t");
-
-    assertTrue(filter.matches(name1));
-    assertFalse(filter.matches(name2));
-    assertFalse(filter.matches(name3));
+    assertEquals("t1", dataSource.getLabel(name));
   }
 
 }

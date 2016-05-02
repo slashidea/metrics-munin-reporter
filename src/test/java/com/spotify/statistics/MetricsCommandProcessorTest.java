@@ -30,20 +30,20 @@ import org.junit.Test;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.spotify.statistics.Property.GaugeProperty;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.Histogram;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.MetricsRegistry;
-import com.yammer.metrics.core.Timer;
 
 public class MetricsCommandProcessorTest {
 
   private static final List<String> NO_ARGS = new ArrayList<String>();
 
-  private MetricsRegistry metricsRegistry = new MetricsRegistry();
+  
+  private MetricRegistry metricsRegistry = new MetricRegistry();
 
   @Mock private Hostname hostname;
 
@@ -53,7 +53,7 @@ public class MetricsCommandProcessorTest {
 
     when(hostname.getHostname()).thenReturn("somehost");
 
-    metricsRegistry = new MetricsRegistry();
+    metricsRegistry = new MetricRegistry();
   }
 
   @Test
@@ -87,20 +87,22 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testConfigWithDefaults() throws Exception {
-    final MetricName name1 = new MetricName("gr", "t1", "c1");
-    final MetricName name2 = new MetricName("gr", "t1", "m1");
-    final MetricName name3 = new MetricName("gr", "t1", "g1");
-    final MetricName name4 = new MetricName("gr", "t1", "h1");
-    final MetricName name5 = new MetricName("gr", "t1", "t1");
-    metricsRegistry.newCounter(name1);
-    metricsRegistry.newMeter(name2, "trolls", TimeUnit.SECONDS);
-    metricsRegistry.newGauge(name3, new Gauge<Integer>() {
-      @Override
-      public Integer value() {
-        return 123;
-      }});
-    metricsRegistry.newHistogram(name4, false);
-    metricsRegistry.newTimer(name5, TimeUnit.SECONDS, TimeUnit.MILLISECONDS);
+    final String name1 = MetricRegistry.name("gr", "t1", "c1");
+    final String name2 = MetricRegistry.name("gr", "t1", "m1");
+    final String name3 = MetricRegistry.name("gr", "t1", "g1");
+    final String name4 = MetricRegistry.name("gr", "t1", "h1");
+    final String name5 = MetricRegistry.name("gr", "t1", "t1");
+    metricsRegistry.counter(name1);
+    metricsRegistry.meter(name2);
+    metricsRegistry.register(name3, new Gauge<Integer>() {
+        
+        @Override
+        public Integer getValue() {
+            return 123;
+        }
+      });
+    metricsRegistry.histogram(name4);
+    metricsRegistry.timer(name5);
 
     final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
 
@@ -125,12 +127,12 @@ public class MetricsCommandProcessorTest {
               "graph_title t1 - c1",
               "graph_category gr",
               "graph_vlabel ",
-              "c1__count.label c1",
-              "c1__count.type DERIVE",
-              "c1__count.min 0",
+              "gr_t1_c1__count.label gr.t1.c1",
+              "gr_t1_c1__count.type DERIVE",
+              "gr_t1_c1__count.min 0",
               "."
       );
-      assertEquals(expectedOutput, output);
+      assertEquals(expectedOutput, output);      
     }
 
     {
@@ -139,9 +141,9 @@ public class MetricsCommandProcessorTest {
               "graph_title t1 - m1",
               "graph_category gr",
               "graph_vlabel ",
-              "m1__five_minute_rate.label m1",
-              "m1__five_minute_rate.type GAUGE",
-              "m1__five_minute_rate.min 0",
+              "gr_t1_m1__five_minute_rate.label gr.t1.m1",
+              "gr_t1_m1__five_minute_rate.type GAUGE",
+              "gr_t1_m1__five_minute_rate.min 0",
               "."
       );
       assertEquals(expectedOutput, output);
@@ -153,9 +155,9 @@ public class MetricsCommandProcessorTest {
               "graph_title t1 - h1",
               "graph_category gr",
               "graph_vlabel ",
-              "h1__median.label h1",
-              "h1__median.type GAUGE",
-              "h1__median.min 0",
+              "gr_t1_h1__median.label gr.t1.h1",
+              "gr_t1_h1__median.type GAUGE",
+              "gr_t1_h1__median.min 0",
               "."
       );
       assertEquals(expectedOutput, output);
@@ -167,9 +169,9 @@ public class MetricsCommandProcessorTest {
               "graph_title t1 - t1",
               "graph_category gr",
               "graph_vlabel ",
-              "t1__median.label t1",
-              "t1__median.type GAUGE",
-              "t1__median.min 0",
+              "gr_t1_t1__median.label gr.t1.t1",
+              "gr_t1_t1__median.type GAUGE",
+              "gr_t1_t1__median.min 0",
               "."
       );
       assertEquals(expectedOutput, output);
@@ -181,9 +183,9 @@ public class MetricsCommandProcessorTest {
               "graph_title t1 - g1",
               "graph_category gr",
               "graph_vlabel ",
-              "g1__value_gauge.label g1",
-              "g1__value_gauge.type GAUGE",
-              "g1__value_gauge.min 0",
+              "gr_t1_g1__value_gauge.label gr.t1.g1",
+              "gr_t1_g1__value_gauge.type GAUGE",
+              "gr_t1_g1__value_gauge.min 0",
               "."
       );
       assertEquals(expectedOutput, output);
@@ -192,10 +194,10 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testConfig() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "g1");
-    metricsRegistry.newGauge(name, new Gauge<Integer>() {
+    final String name = MetricRegistry.name("gr", "t1", "g1");
+    metricsRegistry.register(name, new Gauge<Integer>() {
       @Override
-      public Integer value() {
+      public Integer getValue() {
         return 123;
       }});
 
@@ -213,9 +215,9 @@ public class MetricsCommandProcessorTest {
       "graph_category gr",
       "graph_args args",
       "graph_vlabel vlabel",
-      "g1__value_gauge.label label",
-      "g1__value_gauge.type GAUGE",
-      "g1__value_gauge.min 123",
+      "gr_t1_g1__value_gauge.label label",
+      "gr_t1_g1__value_gauge.type GAUGE",
+      "gr_t1_g1__value_gauge.min 123",
       "."
     );
     List<String> output = sut.processCommand("config", asList("gr_t1_g1"));
@@ -224,10 +226,10 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testConfigWithProperty() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "g1");
-    metricsRegistry.newGauge(name, new Gauge<Integer>() {
+    final String name = MetricRegistry.name("gr", "t1", "g1");
+    metricsRegistry.register(name, new Gauge<Integer>() {
       @Override
-      public Integer value() {
+      public Integer getValue() {
         return 123;
       }});
 
@@ -245,9 +247,9 @@ public class MetricsCommandProcessorTest {
       "graph_category gr",
       "graph_args args",
       "graph_vlabel vlabel",
-      "g1__value_derive.label label",
-      "g1__value_derive.type DERIVE",
-      "g1__value_derive.min 0",
+      "gr_t1_g1__value_derive.label label",
+      "gr_t1_g1__value_derive.type DERIVE",
+      "gr_t1_g1__value_derive.min 0",
       "."
     );
     List<String> output = sut.processCommand("config", asList("gr_t1_g1"));
@@ -266,8 +268,8 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testFetchCounter() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "n1");
-    Counter counter = metricsRegistry.newCounter(name);
+    final String name = MetricRegistry.name("gr", "t1", "n1");
+    Counter counter = metricsRegistry.counter(name);
 
     final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
     Map<String, MuninGraph> graphs = new HashMap<String, MuninGraph>() {{
@@ -281,7 +283,7 @@ public class MetricsCommandProcessorTest {
     counter.inc();
 
     assertEquals(asList(
-      "n1__count.value 2",
+      "gr_t1_n1__count.value 2",
       "."
       )
       , sut.processCommand("fetch", asList("foo")));
@@ -289,8 +291,8 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testFetchMeter() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "n1");
-    Meter meter = metricsRegistry.newMeter(name, "trolls", TimeUnit.SECONDS);
+    final String name = MetricRegistry.name("gr", "t1", "n1");
+    Meter meter = metricsRegistry.meter(name);
     meter.mark();
     meter.mark();
 
@@ -304,7 +306,7 @@ public class MetricsCommandProcessorTest {
 
     // rate will be 0.0 in this test
     assertEquals(asList(
-      "n1__five_minute_rate.value 0",
+      "gr_t1_n1__five_minute_rate.value 0",
       "."
     )
     , sut.processCommand("fetch", asList("foo")));
@@ -313,10 +315,10 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testFetchGauge() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "n1");
-    metricsRegistry.newGauge(name, new Gauge<Integer>() {
+    final String name = MetricRegistry.name("gr", "t1", "n1");
+    metricsRegistry.register(name, new Gauge<Integer>() {
       @Override
-      public Integer value() {
+      public Integer getValue() {
         return 123;
       }});
 
@@ -329,7 +331,7 @@ public class MetricsCommandProcessorTest {
     MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
 
     assertEquals(asList(
-      "n1__value_gauge.value 123",
+      "gr_t1_n1__value_gauge.value 123",
       "."
       )
       , sut.processCommand("fetch", asList("foo")));
@@ -337,8 +339,8 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testFetchHistogram() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "h1");
-    Histogram histogram = metricsRegistry.newHistogram(name, false);
+    final String name = MetricRegistry.name("gr", "t1", "h1");
+    Histogram histogram = metricsRegistry.histogram(name);
     histogram.update(1);
     histogram.update(1);
     histogram.update(3);
@@ -352,7 +354,7 @@ public class MetricsCommandProcessorTest {
     MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
 
     assertEquals(asList(
-      "h1__median.value 1",
+      "gr_t1_h1__median.value 1",
       "."
     )
     , sut.processCommand("fetch", asList("foo")));
@@ -361,8 +363,8 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testFetchTimer() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "h1");
-    Timer timer = metricsRegistry.newTimer(name, TimeUnit.SECONDS, TimeUnit.SECONDS);
+    final String name = MetricRegistry.name("gr", "t1", "h1");
+    Timer timer = metricsRegistry.timer(name);
     timer.update(1, TimeUnit.SECONDS);
     timer.update(1, TimeUnit.SECONDS);
     timer.update(1, TimeUnit.SECONDS);
@@ -376,7 +378,7 @@ public class MetricsCommandProcessorTest {
     MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
 
     assertEquals(asList(
-            "h1__median.value 1",
+            "gr_t1_h1__median.value 1000000000",
             "."
     )
     , sut.processCommand("fetch", asList("foo")));
@@ -384,8 +386,8 @@ public class MetricsCommandProcessorTest {
 
   @Test(expected=IllegalArgumentException.class)
   public void testFetchInvalidProperty() throws Exception {
-    final MetricName name = new MetricName("gr", "t1", "h1");
-    metricsRegistry.newTimer(name, TimeUnit.SECONDS, TimeUnit.SECONDS);
+    final String name = MetricRegistry.name("gr", "t1", "h1");
+    metricsRegistry.timer(name);
 
     final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
     Map<String, MuninGraph> graphs = new HashMap<String, MuninGraph>() {{

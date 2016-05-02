@@ -15,13 +15,13 @@
  */
 package com.spotify.statistics;
 
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.Histogram;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.Metric;
-import com.yammer.metrics.core.Timer;
-import com.yammer.metrics.stats.Snapshot;
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.Snapshot;
+import com.codahale.metrics.Timer;
 
 public interface Property {
 
@@ -71,7 +71,7 @@ public interface Property {
     public Number getNumber(final Metric metric, final Snapshot none) {
       if (metric instanceof Counter) {
         Counter counter = (Counter) metric;
-        return counter.count();
+        return counter.getCount();
       } else {
         throw new IllegalArgumentException("Invalid metric for property");
       }
@@ -95,7 +95,7 @@ public interface Property {
     public Number getNumber(final Metric metric, final Snapshot none) {
       if (metric instanceof Gauge) {
         Gauge<?> gauge = (Gauge<?>) metric;
-        Object o = gauge.value();
+        Object o = gauge.getValue();
         if (o instanceof Number) {
           return (Number) o;
         } else {
@@ -116,7 +116,7 @@ public interface Property {
     MIN(Type.GAUGE),
     MEAN(Type.GAUGE),
     MEAN_RATE(Type.GAUGE),
-    SUM(Type.GAUGE),
+//    SUM(Type.GAUGE),
     STD_DEV(Type.GAUGE),
     MEDIAN(Type.GAUGE),
     PERCENTILE75(Type.GAUGE),
@@ -138,39 +138,40 @@ public interface Property {
     public Number getNumber(final Metric metric, final Snapshot snapshot) {
       if (metric instanceof Timer) {
         Timer timer = (Timer) metric;
+        Snapshot timerSnahpshot = timer.getSnapshot();
         switch(this) {
           case COUNT:
-            return timer.count();
+            return timer.getCount();
           case ONE_MINUTE_RATE:
-            return timer.oneMinuteRate();
+            return timer.getOneMinuteRate();
           case FIVE_MINUTE_RATE:
-            return timer.fiveMinuteRate();
+            return timer.getFiveMinuteRate();
           case FIFTEEN_MINUTE_RATE:
-            return timer.fifteenMinuteRate();
+            return timer.getFifteenMinuteRate();
           case MAX:
-            return timer.max();
+            return timerSnahpshot.getMax();
           case MIN:
-            return timer.min();
+            return timerSnahpshot.getMin();
           case MEAN:
-            return timer.mean();
+            return timerSnahpshot.getMean();
           case MEAN_RATE:
-            return timer.meanRate();
-          case SUM:
-            return timer.sum();
+            return timer.getMeanRate();
+//          case SUM:
+//            return snapshot.get;
           case STD_DEV:
-            return timer.stdDev();
+            return timerSnahpshot.getStdDev();
           case MEDIAN:
-            return snapshot.getMedian();
+            return timerSnahpshot.getMedian();
           case PERCENTILE75:
-            return snapshot.get75thPercentile();
+            return timerSnahpshot.get75thPercentile();
           case PERCENTILE95:
-            return snapshot.get95thPercentile();
+            return timerSnahpshot.get95thPercentile();
           case PERCENTILE98:
-            return snapshot.get98thPercentile();
+            return timerSnahpshot.get98thPercentile();
           case PERCENTILE99:
-            return snapshot.get99thPercentile();
+            return timerSnahpshot.get99thPercentile();
           case PERCENTILE999:
-            return snapshot.get999thPercentile();
+            return timerSnahpshot.get999thPercentile();
           default:
             throw new RuntimeException("Unexpected property");
         }
@@ -202,15 +203,15 @@ public interface Property {
         Meter meter = (Meter) metric;
         switch(this) {
           case COUNT:
-            return meter.count();
+            return meter.getCount();
           case ONE_MINUTE_RATE:
-            return meter.oneMinuteRate();
+            return meter.getOneMinuteRate();
           case FIVE_MINUTE_RATE:
-            return meter.fiveMinuteRate();
+            return meter.getFifteenMinuteRate();
           case FIFTEEN_MINUTE_RATE:
-            return meter.fifteenMinuteRate();
+            return meter.getFifteenMinuteRate();
           case MEAN_RATE:
-            return meter.meanRate();
+            return meter.getMeanRate();
           default:
             throw new RuntimeException("Unexpected property");
         }
@@ -226,7 +227,7 @@ public interface Property {
     MAX(Type.GAUGE),
     MIN(Type.GAUGE),
     MEAN(Type.GAUGE),
-    SUM(Type.GAUGE),
+//    SUM(Type.GAUGE),
     STD_DEV(Type.GAUGE),
     MEDIAN(Type.GAUGE),
     PERCENTILE75(Type.GAUGE),
@@ -248,31 +249,32 @@ public interface Property {
     public Number getNumber(final Metric metric, final Snapshot snapshot) {
       if (metric instanceof Histogram) {
         Histogram histogram = (Histogram) metric;
+        Snapshot histogramSnapshot = histogram.getSnapshot();
         switch(this) {
           case COUNT:
-            return histogram.count();
+            return histogram.getCount();
           case MAX:
-            return histogram.max();
+            return histogramSnapshot.getMax();
           case MIN:
-            return histogram.min();
+            return histogramSnapshot.getMin();
           case MEAN:
-            return histogram.mean();
-          case SUM:
-            return histogram.sum();
+            return histogramSnapshot.getMean();
+//          case SUM:
+//            return snapshot.getS();
           case STD_DEV:
-            return histogram.stdDev();
-          case MEDIAN:
-            return snapshot.getMedian();
+            return histogramSnapshot.getStdDev();
+          case MEDIAN: 
+            return histogramSnapshot.getMedian();
           case PERCENTILE75:
-            return snapshot.get75thPercentile();
+            return histogramSnapshot.get75thPercentile();
           case PERCENTILE95:
-            return snapshot.get95thPercentile();
+            return histogramSnapshot.get95thPercentile();
           case PERCENTILE98:
-            return snapshot.get98thPercentile();
+            return histogramSnapshot.get98thPercentile();
           case PERCENTILE99:
-            return snapshot.get99thPercentile();
+            return histogramSnapshot.get99thPercentile();
           case PERCENTILE999:
-            return snapshot.get999thPercentile();
+            return histogramSnapshot.get999thPercentile();
           default:
             throw new RuntimeException("Unexpected property");
         }

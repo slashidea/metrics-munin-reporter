@@ -15,8 +15,7 @@
  */
 package com.spotify.statistics;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import static java.util.Arrays.asList;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -30,11 +29,11 @@ import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.List;
 
-import static java.util.Arrays.asList;
+import org.apache.log4j.Logger;
 
 public class MuninHandler extends Thread {
 
-  private static final Logger LOG = LoggerFactory.getLogger(MuninHandler.class);
+    private static final Logger LOG = Logger.getLogger(MuninHandler.class);
 
   private static final String LINE_END = "\n";
 
@@ -45,7 +44,8 @@ public class MuninHandler extends Thread {
     this.socket = socket;
     this.commandProcessor = commandProcessor;
 
-    setDaemon(true);
+    // XXX we don't need to run this thread as a daemon
+    // setDaemon(true);
   }
 
   @Override

@@ -16,61 +16,65 @@
 
 package com.spotify.statistics;
 
-import com.yammer.metrics.core.MetricName;
-
 public class MuninDataSourceFactory {
 
-  static class GroupAndTypeFilter implements MetricFilter {
-
-    private final String metricGroup;
-    private final String metricType;
-
-    @Override
-    public boolean equals(final Object o) {
-      if (this == o) {
-        return true;
-      }
-      if (o == null || getClass() != o.getClass()) {
-        return false;
-      }
-
-      final GroupAndTypeFilter that = (GroupAndTypeFilter) o;
-
-      if (!metricGroup.equals(that.metricGroup)) {
-        return false;
-      }
-      if (!metricType.equals(that.metricType)) {
-        return false;
-      }
-
-      return true;
-    }
-
-    @Override
-    public int hashCode() {
-      int result = metricGroup.hashCode();
-      result = 31 * result + metricType.hashCode();
-      return result;
-    }
-
-    @Override
-    public String toString() {
-      return "GroupAndTypeFilter{"
-        + "metricGroup='" + metricGroup + '\''
-        + ", metricType='" + metricType + '\''
-        + '}';
-    }
-
-    GroupAndTypeFilter(final String metricGroup, final String metricType) {
-      this.metricGroup = metricGroup;
-      this.metricType = metricType;
-    }
-
-    public boolean matches(final MetricName metricName) {
-      return metricName.getGroup().equals(metricGroup)
-        && metricName.getType().equals(metricType);
-    }
-  }
+//  static class GroupAndTypeFilter implements MetricFilter {
+//
+//    private final String metricGroup;
+//    private final String metricType;
+//
+//    @Override
+//    public boolean equals(final Object o) {
+//      if (this == o) {
+//        return true;
+//      }
+//      if (o == null || getClass() != o.getClass()) {
+//        return false;
+//      }
+//
+//      final GroupAndTypeFilter that = (GroupAndTypeFilter) o;
+//
+//      if (!metricGroup.equals(that.metricGroup)) {
+//        return false;
+//      }
+//      if (!metricType.equals(that.metricType)) {
+//        return false;
+//      }
+//
+//      return true;
+//    }
+//
+//    @Override
+//    public int hashCode() {
+//      int result = metricGroup.hashCode();
+//      result = 31 * result + metricType.hashCode();
+//      return result;
+//    }
+//
+//    @Override
+//    public String toString() {
+//      return "GroupAndTypeFilter{"
+//        + "metricGroup='" + metricGroup + '\''
+//        + ", metricType='" + metricType + '\''
+//        + '}';
+//    }
+//
+//    GroupAndTypeFilter(final String metricGroup, final String metricType) {
+//      this.metricGroup = metricGroup;
+//      this.metricType = metricType;
+//    }
+//
+//    public boolean matches(final String metricName) {
+//      return metricName.getGroup().equals(metricGroup)
+//        && metricName.getType().equals(metricType);
+//    }
+//
+//    @Override
+//    public boolean matches(String metricName, Metric metric) {
+//        // TODO Auto-generated method stub
+//        return false;
+//    }
+//  }
 
   /**
    * @param metricName The metric name.
@@ -81,23 +85,23 @@ public class MuninDataSourceFactory {
    *               metrics
    * @return The munin data source.
    */
-  public MuninDataSource forMetric(final MetricName metricName, final String labelOrNull,
+  public MuninDataSource forMetric(final String metricName, final String labelOrNull,
                                    final Property propertyOrNull,
                                    final MuninDataSourceConfig config) {
-    final String label = labelOrNull == null ? metricName.getName() : labelOrNull;
+    final String label = labelOrNull == null ? metricName : labelOrNull;
     return new SingleMetricMuninDataSource(metricName, label, propertyOrNull, config);
   }
 
-  public MuninDataSource forWildcard(final String metricGroup, final String metricType,
-                                     final String labelFormatOrNull,
-                                     final Property propertyOrNull, final MuninDataSourceConfig config) {
-    return forWildcard(new GroupAndTypeFilter(metricGroup, metricType),
-                       labelFormatOrNull, propertyOrNull, config);
-  }
+//  public MuninDataSource forWildcard(final String metricGroup, final String metricType,
+//                                     final String labelFormatOrNull,
+//                                     final Property propertyOrNull, final MuninDataSourceConfig config) {
+//    return forWildcard(new GroupAndTypeFilter(metricGroup, metricType),
+//                       labelFormatOrNull, propertyOrNull, config);
+//  }
 
-  public MuninDataSource forWildcard(final MetricFilter filter, final String labelFormatOrNull,
-                                     final Property propertyOrNull, final MuninDataSourceConfig config) {
-    return new WildcardMuninDataSource(filter, labelFormatOrNull, propertyOrNull, config);
-  }
+//  public MuninDataSource forWildcard(final MetricFilter filter, final String labelFormatOrNull,
+//                                     final Property propertyOrNull, final MuninDataSourceConfig config) {
+//    return new WildcardMuninDataSource(filter, labelFormatOrNull, propertyOrNull, config);
+//  }
 
 }

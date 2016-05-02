@@ -15,13 +15,12 @@
  */
 package com.spotify.statistics;
 
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.MetricsRegistry;
+import java.util.Arrays;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import java.util.Arrays;
-import java.util.List;
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * Definition of one data source for a single metric
@@ -32,9 +31,9 @@ public class SingleMetricMuninDataSource extends MuninDataSource {
 
   private final String label;
   private final String name;
-  private final List<MetricName> metricNames;
+  private final List<String> metricNames;
 
-  public SingleMetricMuninDataSource(final MetricName metricName, final String label,
+  public SingleMetricMuninDataSource(final String metricName, final String label,
                                      final Property property) {
     this(metricName, label, property, new MuninDataSourceConfig());
   }
@@ -44,7 +43,7 @@ public class SingleMetricMuninDataSource extends MuninDataSource {
    * @param label The label to use for the data source
    * @param config The graph configuration
    */
-  public SingleMetricMuninDataSource(final MetricName metricName, final String label,
+  public SingleMetricMuninDataSource(final String metricName, final String label,
                                      final Property property, final MuninDataSourceConfig config) {
     super(property, config);
 
@@ -60,20 +59,20 @@ public class SingleMetricMuninDataSource extends MuninDataSource {
    * The label to use for the data source
    * @return The label
    */
-  public String getLabel(final MetricName name) {
+  public String getLabel(final String name) {
     return label;
   }
 
   @Override
-  public String getName(final MetricName metricName) {
+  public String getName(final String metricName) {
     if (name != null) {
       return name;
     } else {
-      return metricName.getName();
+      return metricName;
     }
   }
 
-  public List<MetricName> getMetricNames(final MetricsRegistry registry) {
+  public List<String> getMetricNames(final MetricRegistry registry) {
     return metricNames;
   }
 

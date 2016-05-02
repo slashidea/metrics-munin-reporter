@@ -15,51 +15,52 @@
  */
 package com.spotify.statistics.example;
 
-import com.spotify.statistics.JvmMetrics;
+import static com.spotify.statistics.MuninGraph.muninName;
+
+import java.io.IOException;
+import java.util.Queue;
+import java.util.Random;
+import java.util.concurrent.TimeUnit;
+
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.spotify.statistics.MuninGraphCategoryConfig;
 import com.spotify.statistics.MuninGraphProviderBuilder;
 import com.spotify.statistics.MuninReporter;
 import com.spotify.statistics.MuninReporterConfig;
 import com.spotify.statistics.Property.MeterProperty;
 import com.spotify.statistics.Property.TimerProperty;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.Timer;
-import com.yammer.metrics.core.TimerContext;
-
-import java.io.IOException;
-import java.util.Random;
-import java.util.concurrent.TimeUnit;
-
-import static com.spotify.statistics.MuninGraph.muninName;
 
 public class Example {
 
   public static void main(final String[] args) throws InterruptedException, IOException {
 
-    // Define the metrics
-    MetricName totalName = new MetricName("Spotify", "hits", "total");
-    Counter counter = Metrics.newCounter(totalName);
-
-    MetricName cdnName = new MetricName("Spotify", "hits", "cdn");
-    Counter cdnCounter = Metrics.newCounter(cdnName);
-
-    MetricName meteredName = new MetricName(Example.class, "requests");
-    Meter metered = Metrics.newMeter(meteredName, "requests", TimeUnit.SECONDS);
-
-    MetricName timerName = new MetricName(Example.class, "duration");
-    Timer timer = Metrics.newTimer(timerName, TimeUnit.SECONDS, TimeUnit.SECONDS);
-
-    MetricName gaugeName = new MetricName("Spotify", "worker", "queue size");
-    Metrics.newGauge(gaugeName, new Gauge<Integer>() {
-      @Override
-      public Integer value() {
-        return 17;
-      }
-    });
+      // Define the metrics
+      MetricRegistry registry = new MetricRegistry();
+      
+      String totalName = MetricRegistry.name("Spotify", "hits", "total");
+      Counter counter = registry.counter(totalName);
+      
+      String cdnName = MetricRegistry.name("Spotify", "hits", "cdn");
+      Counter cdnCounter = registry.counter(cdnName);
+      
+      String meteredName = MetricRegistry.name(Example.class, "requests");
+      Meter metered = registry.meter(meteredName);
+            
+      String timerName = MetricRegistry.name(Example.class, "duration");
+      Timer timer = registry.timer(timerName);
+            
+      String gaugeName = MetricRegistry.name("Spotify", "worker", "queue size");
+      registry.register(gaugeName, new Gauge<Integer>() {
+          
+        @Override
+        public Integer getValue() {
+            return 17;
+        }
+      });    
 
     // let's generate some data
     counter.inc();
@@ -74,9 +75,9 @@ public class Example {
 
     // this is a poor way to fake some input not known before-hand
     String someInput = Integer.toString(new Random().nextInt());
-    Metrics.newCounter(new MetricName(inputGroup, inputType, someInput)).inc();
-
-    final TimerContext context = timer.time();
+    
+    timer = registry.timer(MetricRegistry.name(inputGroup, inputType, someInput));
+    final Timer.Context context = timer.time();
     try {
       Thread.sleep(500); // Work...
     } finally {
@@ -84,7 +85,6 @@ public class Example {
     }
 
     // Define the munin graphs
-
     MuninReporterConfig config = new MuninReporterConfig();
 
     MuninGraphCategoryConfig category = config.category("Spotify");
@@ -107,20 +107,12 @@ public class Example {
             .dataSource(totalName, "Requests", muninName("requests"))
             .dataSource(meteredName, "Responses", muninName("responses"));
 
-    category.graph("Input types")
-      .muninName("input_types")
-      // the {} placeholder will be replaced by the dynamic metric name
-      .wildcardDataSource(inputGroup, inputType, "Type {}", muninName("foobar_{}"));
-
-    JvmMetrics.register(Metrics.defaultRegistry(), config.category("JVM"));
-
-    MuninReporter munin = new MuninReporter(Metrics.defaultRegistry(), config);
+    MuninReporter munin = new MuninReporter(registry, config);
     munin.start();
 
-
     // Add metrics for a runtime component, e.g. a plugin
-    MetricName pluginRequestsName = new MetricName("Plugin", "requests", "requests");
-    Meter pluginRequests = Metrics.newMeter(pluginRequestsName, "requests", TimeUnit.SECONDS);
+    String pluginRequestsName = MetricRegistry.name("Plugin", "requests", "requests");
+    Meter pluginRequests = registry.meter(pluginRequestsName);
     pluginRequests.mark(4711);
 
     // Set up graphs for the plugin, i.e. add graphs after the reporter was started

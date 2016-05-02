@@ -19,37 +19,36 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
-import java.util.concurrent.TimeUnit;
-
 import org.junit.Test;
 
+import com.codahale.metrics.Counter;
+import com.codahale.metrics.Gauge;
+import com.codahale.metrics.Histogram;
+import com.codahale.metrics.Meter;
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Timer;
 import com.spotify.statistics.Property.CounterProperty;
 import com.spotify.statistics.Property.GaugeProperty;
 import com.spotify.statistics.Property.HistogramProperty;
 import com.spotify.statistics.Property.MeterProperty;
 import com.spotify.statistics.Property.PropertyFactory;
 import com.spotify.statistics.Property.TimerProperty;
-import com.yammer.metrics.Metrics;
-import com.yammer.metrics.core.Counter;
-import com.yammer.metrics.core.Gauge;
-import com.yammer.metrics.core.Histogram;
-import com.yammer.metrics.core.Meter;
-import com.yammer.metrics.core.Metric;
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.Timer;
 
 public class PropertyTest {
 
-  private final Gauge<Integer> gauge = Metrics.newGauge(new MetricName("g", "t", "g"), new Gauge<Integer>() {
+  private final MetricRegistry metricRegistry = new MetricRegistry();
+    
+  private final Gauge<Integer> gauge = metricRegistry.register(MetricRegistry.name("g", "t", "g"), new Gauge<Integer>() {
     @Override
-    public Integer value() {
+    public Integer getValue() {
       return 17;
     }});
 
-  private final Counter counter = Metrics.newCounter(new MetricName("g", "t", "c"));
-  private final Meter meter = Metrics.newMeter(new MetricName("g", "t", "m"), "events", TimeUnit.SECONDS);
-  private final Histogram histogram = Metrics.newHistogram(new MetricName("g", "t", "h"));
-  private final Timer timer = Metrics.newTimer(new MetricName("g", "t", "t"), TimeUnit.SECONDS, TimeUnit.SECONDS);
+  private final Counter counter = metricRegistry.counter(MetricRegistry.name("g", "t", "c"));
+  private final Meter meter = metricRegistry.meter(MetricRegistry.name("g", "t", "m"));
+  private final Histogram histogram = metricRegistry.histogram(MetricRegistry.name("g", "t", "h"));
+  private final Timer timer = metricRegistry.timer(MetricRegistry.name("g", "t", "t"));
 
   @Test
   public void testPropertyFactory() {

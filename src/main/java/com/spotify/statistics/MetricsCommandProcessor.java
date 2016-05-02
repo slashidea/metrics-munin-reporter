@@ -15,14 +15,8 @@
  */
 package com.spotify.statistics;
 
-import com.spotify.statistics.Property.PropertyFactory;
-import com.yammer.metrics.core.Metric;
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.MetricsRegistry;
-import com.yammer.metrics.core.Sampling;
-import com.yammer.metrics.stats.Snapshot;
-
-import org.apache.commons.lang.StringUtils;
+import static java.lang.String.format;
+import static java.util.Arrays.asList;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -31,16 +25,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static java.lang.String.format;
-import static java.util.Arrays.asList;
+import org.apache.commons.lang.StringUtils;
+
+import com.codahale.metrics.Metric;
+import com.codahale.metrics.MetricRegistry;
+import com.codahale.metrics.Sampling;
+import com.codahale.metrics.Snapshot;
+import com.spotify.statistics.Property.PropertyFactory;
 
 public class MetricsCommandProcessor {
 
-  private final MetricsRegistry registry;
+  private final MetricRegistry registry;
   private final MuninGraphProvider muninGraphProvider;
   private final Hostname hostname;
 
-  public MetricsCommandProcessor(final MetricsRegistry registry,
+  public MetricsCommandProcessor(final MetricRegistry registry,
                                  final MuninGraphProvider muninGraphProvider,
                                  final Hostname hostname) {
     this.registry = registry;
@@ -90,10 +89,10 @@ public class MetricsCommandProcessor {
     output.add(format("graph_vlabel %s", graph.getVlabel()));
 
     for (MuninDataSource dataSource : graph.getDataSources()) {
-      List<MetricName> names = dataSource.getMetricNames(registry);
+      List<String> names = dataSource.getMetricNames(registry);
 
-      for (MetricName name : names) {
-        Metric metric = registry.allMetrics().get(name);
+      for (String name : names) {
+        Metric metric = registry.getMetrics().get(name);
         if (metric != null) {
           Property property = PropertyFactory.getProperty(dataSource.getPropertyOrNull(), metric);
 
@@ -143,12 +142,12 @@ public class MetricsCommandProcessor {
 
     // collect all snapshots so that data sources that work against the same snapshot,
     // will sample from the exact same snapshot.
-    Map<MetricName, Snapshot> snapshots = new HashMap<MetricName, Snapshot>();
+    Map<String, Snapshot> snapshots = new HashMap<String, Snapshot>();
     for (MuninDataSource dataSource : graph.getDataSources()) {
-      List<MetricName> names = dataSource.getMetricNames(registry);
+      List<String> names = dataSource.getMetricNames(registry);
 
-      for (MetricName name : names) {
-        Metric metric = registry.allMetrics().get(name);
+      for (String name : names) {
+        Metric metric = registry.getMetrics().get(name);
 
         if (metric instanceof Sampling) {
           snapshots.put(name, ((Sampling) metric).getSnapshot());
@@ -158,10 +157,10 @@ public class MetricsCommandProcessor {
 
     List<String> output = new ArrayList<String>();
     for (MuninDataSource dataSource : graph.getDataSources()) {
-      List<MetricName> names = dataSource.getMetricNames(registry);
+      List<String> names = dataSource.getMetricNames(registry);
 
-      for (MetricName name : names) {
-        Metric metric = registry.allMetrics().get(name);
+      for (String name : names) {
+        Metric metric = registry.getMetrics().get(name);
 
         if (metric != null) {
           Property property = PropertyFactory.getProperty(dataSource.getPropertyOrNull(), metric);

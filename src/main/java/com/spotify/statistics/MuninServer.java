@@ -19,11 +19,11 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.net.ServerSocket;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.apache.log4j.Logger;
+
 
 public class MuninServer extends Thread {
-  private static final Logger LOG = LoggerFactory.getLogger(MuninServer.class);
+  private static final Logger LOG = Logger.getLogger(MuninServer.class);
   private static final int DEFAULT_BACKLOG = 0;
 
   private final MetricsCommandProcessor commandProcessor;
@@ -40,12 +40,14 @@ public class MuninServer extends Thread {
     this.bindAddress = bindAddress;
     this.port = port;
 
-    this.setDaemon(true);
+    // XXX we don't need to run this thread as a daemon
+    // this.setDaemon(true);
   }
 
 
   @Override
   public void run() {
+      LOG.debug("run()"); 
       try {
         ServerSocket ss = new ServerSocket(port, DEFAULT_BACKLOG, bindAddress);
 
@@ -60,11 +62,13 @@ public class MuninServer extends Thread {
           throw new RuntimeException(e);
         }
       } catch (IOException e1) {
+        LOG.error("Failed to bind Munin server socket on address " + bindAddress + ":" + port, e1);
         throw new RuntimeException("Failed to bind Munin server socket on address " + bindAddress + ":" + port, e1);
       }
   }
 
   public void shutdown() {
+    LOG.debug("shutdown()"); 
     this.stopped = true;
   }
 }

@@ -15,23 +15,23 @@
  */
 package com.spotify.statistics;
 
-import com.yammer.metrics.core.MetricName;
+import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
 
-import static org.junit.Assert.assertEquals;
+import com.codahale.metrics.MetricRegistry;
 
 public class SingleMetricMuninDataSourceTest {
 
   @Test
   public void testForMetric() throws Exception {
-    MetricName name = new MetricName("g", "t", "n");
+    final String name = MetricRegistry.name("g", "t", "n");
     final MuninDataSourceFactory dataSourceFactory = new MuninDataSourceFactory();
 
     MuninDataSource dataSource = dataSourceFactory.forMetric(
         name, null, null, new MuninDataSourceConfig());
-    assertEquals("n", dataSource.getLabel(name));
-    assertEquals("n", dataSource.getName(name));
+    assertEquals("g.t.n", dataSource.getLabel(name));
+    assertEquals("g.t.n", dataSource.getName(name));
 
     MuninDataSource dataSource2 = dataSourceFactory.forMetric(
         name, "label", null, new MuninDataSourceConfig().withName("munin_name"));

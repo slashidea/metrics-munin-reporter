@@ -30,10 +30,12 @@ import java.net.Socket;
 
 import org.junit.Test;
 
+import com.codahale.metrics.MetricRegistry;
 import com.google.common.collect.Lists;
-import com.yammer.metrics.Metrics;
 
 public class MuninServerTest {
+    
+  private final MetricRegistry registry = new MetricRegistry();
 
   public static int findFreePort() {
     try {
@@ -57,7 +59,7 @@ public class MuninServerTest {
   @Test
   public void testServer() throws Exception {
     final MetricsCommandProcessor commandProcessor = new MetricsCommandProcessor(
-            Metrics.defaultRegistry(),
+            registry,
             new StaticMuninGraphProvider(Lists.<MuninGraph>newArrayList()),
             mock(Hostname.class));
 

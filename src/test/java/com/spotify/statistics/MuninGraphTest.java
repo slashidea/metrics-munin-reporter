@@ -29,8 +29,6 @@ import java.util.Arrays;
 
 import org.junit.Test;
 
-import com.yammer.metrics.core.MetricName;
-
 public class MuninGraphTest {
 
   @Test
@@ -48,12 +46,11 @@ public class MuninGraphTest {
   public void testDataSource1() {
     final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
     final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forMetric(any(MetricName.class), anyString(), any(Property.class),
+    when(dataSourceFactory.forMetric(any(String.class), anyString(), any(Property.class),
                                      any(MuninDataSourceConfig.class)))
         .thenReturn(dataSource);
 
-    final MetricName name = mock(MetricName.class);
-    when(name.getName()).thenReturn("foo");
+    final String name = "t1";
 
     final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
         .dataSource(name)
@@ -72,11 +69,11 @@ public class MuninGraphTest {
   public void testDataSource2() {
     final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
     final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forMetric(any(MetricName.class), anyString(), any(Property.class),
+    when(dataSourceFactory.forMetric(any(String.class), anyString(), any(Property.class),
                                      any(MuninDataSourceConfig.class)))
         .thenReturn(dataSource);
 
-    final MetricName name = mock(MetricName.class);
+    final String name = "t1";
 
     final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
         .dataSource(name, "label")
@@ -96,11 +93,11 @@ public class MuninGraphTest {
   public void testDataSource3() {
     final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
     final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forMetric(any(MetricName.class), anyString(), any(Property.class),
+    when(dataSourceFactory.forMetric(any(String.class), anyString(), any(Property.class),
                                      any(MuninDataSourceConfig.class)))
         .thenReturn(dataSource);
 
-    final MetricName name = mock(MetricName.class);
+    final String name = "t1";
     final MuninDataSourceConfig dataSourceConfig = mock(MuninDataSourceConfig.class);
 
     final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
@@ -121,11 +118,11 @@ public class MuninGraphTest {
   public void testDataSource4() {
     final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
     final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forMetric(any(MetricName.class), anyString(), any(Property.class),
+    when(dataSourceFactory.forMetric(any(String.class), anyString(), any(Property.class),
                                      any(MuninDataSourceConfig.class)))
         .thenReturn(dataSource);
 
-    final MetricName name = mock(MetricName.class);
+    final String name = "t1";
     final Property property = mock(Property.class);
 
     final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
@@ -146,11 +143,11 @@ public class MuninGraphTest {
   public void testDataSource5() {
     final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
     final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forMetric(any(MetricName.class), anyString(), any(Property.class),
+    when(dataSourceFactory.forMetric(any(String.class), anyString(), any(Property.class),
                                      any(MuninDataSourceConfig.class)))
         .thenReturn(dataSource);
 
-    final MetricName name = mock(MetricName.class);
+    final String name = "t1";
     final Property property = mock(Property.class);
     final MuninDataSourceConfig dataSourceConfig = mock(MuninDataSourceConfig.class);
 
@@ -163,192 +160,5 @@ public class MuninGraphTest {
     assertEquals(Arrays.asList(dataSource), graph.getDataSources());
   }
 
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(String, String)}.
-   */
-  @Test
-  public void testWildcardDataSource1() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(anyString(), anyString(), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource("group", "type")
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq("group"), eq("type"), isNull(String.class),
-                                          isNull(Property.class),
-                                          notNull(MuninDataSourceConfig.class));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(String, String, Property)}.
-   */
-  @Test
-  public void testWildcardDataSource2() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(anyString(), anyString(), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final Property property = mock(Property.class);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource("group", "type", property)
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq("group"), eq("type"), isNull(String.class),
-                                          eq(property), notNull(MuninDataSourceConfig.class));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(String, String, String)}.
-   */
-  @Test
-  public void testWildcardDataSource3() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(anyString(), anyString(), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource("group", "type", "labelfmt")
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq("group"), eq("type"), eq("labelfmt"),
-                                          isNull(Property.class),
-                                          notNull(MuninDataSourceConfig.class));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(String, String, String, Property,
-   * MuninDataSourceConfig)}.
-   */
-  @Test
-  public void testWildcardDataSource4() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(anyString(), anyString(), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final Property property = mock(Property.class);
-    final MuninDataSourceConfig dataSourceConfig = mock(MuninDataSourceConfig.class);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource("group", "type", "labelfmt", property, dataSourceConfig)
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq("group"), eq("type"), eq("labelfmt"),
-                                          eq(property), eq(dataSourceConfig));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(MetricFilter)}.
-   */
-  @Test
-  public void testWildcardDataSource5() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(any(MetricFilter.class), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final MetricFilter filter = mock(MetricFilter.class);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource(filter)
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq(filter), isNull(String.class), isNull(Property.class),
-                                          notNull(MuninDataSourceConfig.class));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(MetricFilter, String)}.
-   */
-  @Test
-  public void testWildcardDataSource6() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(any(MetricFilter.class), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final MetricFilter filter = mock(MetricFilter.class);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource(filter, "labelfmt")
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq(filter), eq("labelfmt"), isNull(Property.class),
-                                          notNull(MuninDataSourceConfig.class));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(MetricFilter, Property)}.
-   */
-  @Test
-  public void testWildcardDataSource7() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(any(MetricFilter.class), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final MetricFilter filter = mock(MetricFilter.class);
-    final Property property = mock(Property.class);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource(filter, property)
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq(filter), isNull(String.class), eq(property),
-                                          notNull(MuninDataSourceConfig.class));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
-
-  /**
-   * Test {@link MuninGraph.Builder#wildcardDataSource(MetricFilter, String, Property,
-   * MuninDataSourceConfig)}.
-   */
-  @Test
-  public void testWildcardDataSource8() {
-    final MuninDataSourceFactory dataSourceFactory = mock(MuninDataSourceFactory.class);
-    final MuninDataSource dataSource = mock(MuninDataSource.class);
-    when(dataSourceFactory.forWildcard(any(MetricFilter.class), anyString(), any(Property.class),
-                                       any(MuninDataSourceConfig.class)))
-        .thenReturn(dataSource);
-
-    final MetricFilter filter = mock(MetricFilter.class);
-    final Property property = mock(Property.class);
-    final MuninDataSourceConfig dataSourceConfig = mock(MuninDataSourceConfig.class);
-
-    final MuninGraph graph = new MuninGraph.Builder(dataSourceFactory, "n", "c", "t")
-        .wildcardDataSource(filter, "labelfmt", property, dataSourceConfig)
-        .build();
-
-    verify(dataSourceFactory).forWildcard(eq(filter), eq("labelfmt"), eq(property),
-                                          eq(dataSourceConfig));
-
-    assertEquals(Arrays.asList(dataSource), graph.getDataSources());
-  }
 
 }

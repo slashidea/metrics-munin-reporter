@@ -15,12 +15,11 @@
  */
 package com.spotify.statistics;
 
-import com.yammer.metrics.core.MetricName;
-import com.yammer.metrics.core.MetricsRegistry;
+import java.util.List;
 
 import org.apache.commons.lang.Validate;
 
-import java.util.List;
+import com.codahale.metrics.MetricRegistry;
 
 /**
  * Definition of one data source
@@ -58,14 +57,14 @@ public abstract class MuninDataSource {
    * @param name {@link MetricName} that might be used for defaulting
    * @return The label
    */
-  public abstract String getLabel(final MetricName name);
+  public abstract String getLabel(final String name);
 
   /**
    * The munin name to use for the data source
    * @param name {@link MetricName} that might be used for defaulting
    * @return The name
    */
-  public abstract String getName(final MetricName name);
+  public abstract String getName(final String name);
 
   /**
    * Minimum value. If the fetched value is below "min", it will be discarded
@@ -130,7 +129,7 @@ public abstract class MuninDataSource {
     return draw;
   }
 
-  public abstract List<MetricName> getMetricNames(MetricsRegistry registry);
+  public abstract List<String> getMetricNames(MetricRegistry registry);
 
   @Override
   public String toString() {

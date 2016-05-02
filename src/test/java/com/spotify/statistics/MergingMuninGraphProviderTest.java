@@ -16,22 +16,21 @@
 
 package com.spotify.statistics;
 
-import com.google.common.collect.ImmutableMap;
-
-import com.yammer.metrics.core.MetricName;
-
-import org.junit.Test;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import org.junit.Test;
+
+import com.codahale.metrics.MetricRegistry;
+import com.google.common.collect.ImmutableMap;
 
 public class MergingMuninGraphProviderTest {
 
   final MergingMuninGraphProvider sut = new MergingMuninGraphProvider();
 
-  final MetricName metricName1 = new MetricName("g1", "t1", "n1", "s1");
+  final String metricName1 = MetricRegistry.name("g1", "t1", "n1", "s1");
   final MuninGraphProviderBuilder builder1 = new MuninGraphProviderBuilder();
   final MuninGraph expectedGraph1 = builder1.category("foo1")
       .graph("bar1")
@@ -39,7 +38,7 @@ public class MergingMuninGraphProviderTest {
       .build();
   final MuninGraphProvider provider1 = builder1.build();
 
-  final MetricName metricName2 = new MetricName("g2", "t2", "n2", "s2");
+  final String metricName2 = MetricRegistry.name("g2", "t2", "n2", "s2");
   final MuninGraphProviderBuilder builder2 = new MuninGraphProviderBuilder();
   final MuninGraph expectedGraph2 = builder2.category("foo2")
       .graph("bar2")
