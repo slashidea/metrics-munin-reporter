@@ -18,6 +18,6 @@ spstat-munin-node is.
 This software is released under the Apache License 2.0. More information in
 the file LICENSE distributed with this project.
 
-##
+## Other
 
-**Reporter version 0.9.0 is already used with the MyCarTracks ([https://www.mycartracks.com](https://www.mycartracks.com)) infrastructure.**
+**Reporter version 0.9.0 is also used with the MyCarTracks ([https://www.mycartracks.com](https://www.mycartracks.com)) infrastructure.**
