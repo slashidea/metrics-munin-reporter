@@ -54,14 +54,14 @@ public abstract class MuninDataSource {
 
   /**
    * The label to use for the data source
-   * @param name {@link MetricName} that might be used for defaulting
+   * @param name that might be used for defaulting
    * @return The label
    */
   public abstract String getLabel(final String name);
 
   /**
    * The munin name to use for the data source
-   * @param name {@link MetricName} that might be used for defaulting
+   * @param name that might be used for defaulting
    * @return The name
    */
   public abstract String getName(final String name);

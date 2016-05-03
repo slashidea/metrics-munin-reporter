@@ -17,6 +17,7 @@ package com.spotify.statistics;
 
 import java.text.NumberFormat;
 import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 public final class NumberUtil {
 
@@ -73,8 +74,20 @@ public final class NumberUtil {
       return null;
     }
   }
+  
+  /**
+   * Convert given number form nanoseconds to unit
+   * @param ns The number in nanoseconds
+   * @param unit Convert number to specific unit
+   * @return The converted number
+   */
+  public static double convertFromNS(double ns, final TimeUnit unit) {
+      return ns / TimeUnit.NANOSECONDS.convert(1, unit); 
+  }
 
   private NumberUtil() {
     // don't allow initialization
   }
+  
+  
 }

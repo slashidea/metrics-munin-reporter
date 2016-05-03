@@ -27,6 +27,7 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.concurrent.TimeUnit;
 
 import org.junit.Test;
 
@@ -61,7 +62,7 @@ public class MuninServerTest {
     final MetricsCommandProcessor commandProcessor = new MetricsCommandProcessor(
             registry,
             new StaticMuninGraphProvider(Lists.<MuninGraph>newArrayList()),
-            mock(Hostname.class));
+            mock(Hostname.class), TimeUnit.SECONDS, TimeUnit.SECONDS);
 
     final int port = findFreePort();
     final InetAddress loopback = InetAddress.getByName(null);

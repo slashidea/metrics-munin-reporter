@@ -45,13 +45,17 @@ public class MetricsCommandProcessorTest {
   
   private MetricRegistry metricsRegistry = new MetricRegistry();
 
-  @Mock private Hostname hostname;
+  @Mock private Hostname hostname;  
+  private TimeUnit rateUnit;
+  private TimeUnit durationUnit;
 
   @Before
   public void setUp() throws Exception {
     MockitoAnnotations.initMocks(this);
 
     when(hostname.getHostname()).thenReturn("somehost");
+    rateUnit = TimeUnit.SECONDS;
+    durationUnit = TimeUnit.SECONDS;
 
     metricsRegistry = new MetricRegistry();
   }
@@ -59,7 +63,7 @@ public class MetricsCommandProcessorTest {
   @Test
   public void testListNoMetrics() throws Exception {
     Map<String, MuninGraph> graphs = new HashMap<String, MuninGraph>();
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     assertEquals(asList(""), sut.processCommand("list", NO_ARGS));
   }
@@ -70,14 +74,14 @@ public class MetricsCommandProcessorTest {
       put("graph1", new MuninGraph("graph1", "c", "t"));
       put("graph2", new MuninGraph("graph2", "c", "t"));
     }};
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     assertEquals(asList("graph1 graph2"), sut.processCommand("list", NO_ARGS));
   }
 
   @Test
   public void testConfigWithNoArgs() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     assertEquals(asList(
             "# unknown service",
             "."
@@ -119,7 +123,7 @@ public class MetricsCommandProcessorTest {
           dataSourceFactory.forMetric(name5, null, null, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     {
       List<String> output = sut.processCommand("config", asList("gr_t1_c1"));
@@ -209,7 +213,7 @@ public class MetricsCommandProcessorTest {
       put("gr_t1_g1", new MuninGraph("gr_t1_g1", "gr", "t1 - g1", asList(muninDataSource), "vlabel", "args"));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
     List<String> expectedOutput = asList(
       "graph_title t1 - g1",
       "graph_category gr",
@@ -241,7 +245,7 @@ public class MetricsCommandProcessorTest {
       put("gr_t1_g1", new MuninGraph("gr_t1_g1", "gr", "t1 - g1", asList(muninDataSource), "vlabel", "args"));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
     List<String> expectedOutput = asList(
       "graph_title t1 - g1",
       "graph_category gr",
@@ -258,7 +262,7 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testUnknownService() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     assertEquals(asList(
             "# unknown service",
             "."
@@ -277,7 +281,7 @@ public class MetricsCommandProcessorTest {
           dataSourceFactory.forMetric(name, null, null, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     counter.inc();
     counter.inc();
@@ -302,7 +306,7 @@ public class MetricsCommandProcessorTest {
           name, null, null, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     // rate will be 0.0 in this test
     assertEquals(asList(
@@ -328,7 +332,7 @@ public class MetricsCommandProcessorTest {
           dataSourceFactory.forMetric(name, null, null, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     assertEquals(asList(
       "gr_t1_n1__value_gauge.value 123",
@@ -351,7 +355,7 @@ public class MetricsCommandProcessorTest {
           dataSourceFactory.forMetric(name, null, null, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     assertEquals(asList(
       "gr_t1_h1__median.value 1",
@@ -375,10 +379,10 @@ public class MetricsCommandProcessorTest {
           dataSourceFactory.forMetric(name, null, null, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     assertEquals(asList(
-            "gr_t1_h1__median.value 1000000000",
+            "gr_t1_h1__median.value 1",
             "."
     )
     , sut.processCommand("fetch", asList("foo")));
@@ -395,14 +399,14 @@ public class MetricsCommandProcessorTest {
           name, null, GaugeProperty.VALUE_DERIVE, new MuninDataSourceConfig()))));
     }};
 
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(graphs), hostname, rateUnit, durationUnit);
 
     sut.processCommand("fetch", asList("foo"));
   }
 
   @Test
   public void testFetchWithNoArgs() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     assertEquals(asList(
             "# unknown service",
             "."
@@ -412,7 +416,7 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testNodes() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     assertEquals(asList(
             "somehost",
             "."
@@ -422,7 +426,7 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testVersion() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     assertEquals(asList(
       "metrics-munin-reporter munin node on somehost"
     )
@@ -431,7 +435,7 @@ public class MetricsCommandProcessorTest {
 
   @Test
   public void testFetchWithUnknownService() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     assertEquals(asList(
       "# unknown service",
       "."
@@ -441,13 +445,13 @@ public class MetricsCommandProcessorTest {
 
   @Test(expected=QuitException.class)
   public void testQuit() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     sut.processCommand("quit", NO_ARGS);
   }
 
   @Test(expected=UnknownCommandException.class)
   public void testUnknownCommand() throws Exception {
-    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname);
+    MetricsCommandProcessor sut = new MetricsCommandProcessor(metricsRegistry, new StaticMuninGraphProvider(new ArrayList<MuninGraph>()), hostname, rateUnit, durationUnit);
     sut.processCommand("dummy", NO_ARGS);
   }
 }

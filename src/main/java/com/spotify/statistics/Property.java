@@ -15,6 +15,8 @@
  */
 package com.spotify.statistics;
 
+import java.util.concurrent.TimeUnit;
+
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
@@ -22,6 +24,8 @@ import com.codahale.metrics.Meter;
 import com.codahale.metrics.Metric;
 import com.codahale.metrics.Snapshot;
 import com.codahale.metrics.Timer;
+
+import static com.spotify.statistics.NumberUtil.convertFromNS;
 
 public interface Property {
 
@@ -52,7 +56,7 @@ public interface Property {
 
   Type getType();
 
-  Number getNumber(Metric metric, Snapshot snapshotOrNull);
+  Number getNumber(Metric metric, Snapshot snapshotOrNull, TimeUnit rateUnit, TimeUnit durationUnit);
 
   public static enum CounterProperty implements Property {
     COUNT(Type.DERIVE),
@@ -68,7 +72,7 @@ public interface Property {
       return type;
     }
 
-    public Number getNumber(final Metric metric, final Snapshot none) {
+    public Number getNumber(final Metric metric, final Snapshot none, final TimeUnit rateUnit, final TimeUnit durationUnit) {
       if (metric instanceof Counter) {
         Counter counter = (Counter) metric;
         return counter.getCount();
@@ -92,7 +96,7 @@ public interface Property {
       return type;
     }
 
-    public Number getNumber(final Metric metric, final Snapshot none) {
+    public Number getNumber(final Metric metric, final Snapshot none, final TimeUnit rateUnit, final TimeUnit durationUnit) {
       if (metric instanceof Gauge) {
         Gauge<?> gauge = (Gauge<?>) metric;
         Object o = gauge.getValue();
@@ -135,9 +139,10 @@ public interface Property {
       return type;
     }
 
-    public Number getNumber(final Metric metric, final Snapshot snapshot) {
+    public Number getNumber(final Metric metric, final Snapshot snapshot, final TimeUnit rateUnit, final TimeUnit durationUnit) {
       if (metric instanceof Timer) {
         Timer timer = (Timer) metric;
+        
         Snapshot timerSnahpshot = timer.getSnapshot();
         switch(this) {
           case COUNT:
@@ -149,19 +154,17 @@ public interface Property {
           case FIFTEEN_MINUTE_RATE:
             return timer.getFifteenMinuteRate();
           case MAX:
-            return timerSnahpshot.getMax();
+            return convertFromNS(timerSnahpshot.getMax(), durationUnit);
           case MIN:
-            return timerSnahpshot.getMin();
+            return convertFromNS(timerSnahpshot.getMin(), durationUnit);
           case MEAN:
-            return timerSnahpshot.getMean();
+            return convertFromNS(timerSnahpshot.getMean(), durationUnit);
           case MEAN_RATE:
             return timer.getMeanRate();
-//          case SUM:
-//            return snapshot.get;
           case STD_DEV:
-            return timerSnahpshot.getStdDev();
+            return convertFromNS(timerSnahpshot.getStdDev(), durationUnit);
           case MEDIAN:
-            return timerSnahpshot.getMedian();
+            return convertFromNS(timerSnahpshot.getMedian(), durationUnit);
           case PERCENTILE75:
             return timerSnahpshot.get75thPercentile();
           case PERCENTILE95:
@@ -198,7 +201,7 @@ public interface Property {
       return type;
     }
 
-    public Number getNumber(final Metric metric, final Snapshot none) {
+    public Number getNumber(final Metric metric, final Snapshot none, final TimeUnit rateUnit, final TimeUnit durationUnit) {
       if (metric instanceof Meter) {
         Meter meter = (Meter) metric;
         switch(this) {
@@ -246,7 +249,7 @@ public interface Property {
       return type;
     }
 
-    public Number getNumber(final Metric metric, final Snapshot snapshot) {
+    public Number getNumber(final Metric metric, final Snapshot snapshot, final TimeUnit rateUnit, final TimeUnit durationUnit) {
       if (metric instanceof Histogram) {
         Histogram histogram = (Histogram) metric;
         Snapshot histogramSnapshot = histogram.getSnapshot();

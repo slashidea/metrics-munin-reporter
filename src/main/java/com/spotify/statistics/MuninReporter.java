@@ -64,7 +64,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with multiple graph providers.
    *
-   * @param registry The {@link MetricsRegistry} to get metrics from.
+   * @param registry The {@link MetricRegistry} to get metrics from.
    */
   public MuninReporter(final MetricRegistry registry, final MuninGraphProvider... providers) {
     this(registry, DEFAULT_PORT, DEFAULT_BIND_ADDRESS, asList(providers));
@@ -73,7 +73,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with multiple graph providers.
    *
-   * @param registry The {@link MetricsRegistry} to get metrics from.
+   * @param registry The {@link MetricRegistry} to get metrics from.
    */
   public MuninReporter(final MetricRegistry registry,
                        final Iterable<MuninGraphProvider> providers) {
@@ -83,7 +83,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with a single graph provider.
    *
-   * @param registry The {@link MetricsRegistry} to get metrics from.
+   * @param registry The {@link MetricRegistry} to get metrics from.
    * @param provider The {@link MuninGraphProvider} provider to get graph definitions from.
    */
   public MuninReporter(final MetricRegistry registry, final MuninGraphProvider provider) {
@@ -93,7 +93,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with a single graph provider.
    *
-   * @param registry    The {@link MetricsRegistry} to get metrics from.
+   * @param registry    The {@link MetricRegistry} to get metrics from.
    * @param port        The port to bind on.
    * @param bindAddress The address to bind on.
    * @param provider    The {@link MuninGraphProvider} provider to get graph definitions from.
@@ -106,7 +106,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with a single graph provider.
    *
-   * @param registry The {@link MetricsRegistry} to get metrics from.
+   * @param registry The {@link MetricRegistry} to get metrics from.
    * @param config   The munin reporter configuration to build the graph provider from.
    */
   public MuninReporter(final MetricRegistry registry, final MuninReporterConfig config) {
@@ -116,7 +116,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with multiple graph providers.
    *
-   * @param registry    The {@link MetricsRegistry} to get metrics from.
+   * @param registry    The {@link MetricRegistry} to get metrics from.
    * @param port        The port to bind on.
    * @param bindAddress The address to bind on.
    * @param providers   The {@link MuninGraphProvider} providers to get graph definitions from.
@@ -130,7 +130,7 @@ public class MuninReporter extends ScheduledReporter {
   /**
    * Create a new reporter with multiple graph providers.
    *
-   * @param registry      The {@link MetricsRegistry} to get metrics from.
+   * @param registry      The {@link MetricRegistry} to get metrics from.
    * @param port          The port to bind on.
    * @param bindAddress   The address to bind on.
    * @param filter        The filter for which metrics to report.
@@ -146,7 +146,7 @@ public class MuninReporter extends ScheduledReporter {
     this.mergingGraphProvider = new MergingMuninGraphProvider(providers);
 
     final MetricsCommandProcessor metricsCommandProcessor =
-        new MetricsCommandProcessor(registry, mergingGraphProvider, new ReverseLookupHostname());
+        new MetricsCommandProcessor(registry, mergingGraphProvider, new ReverseLookupHostname(), rateUnit, durationUnit);
     this.server = new MuninServer(metricsCommandProcessor,
                                   port, bindAddress);
   }  

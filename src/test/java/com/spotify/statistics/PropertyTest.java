@@ -19,6 +19,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 
+import java.util.concurrent.TimeUnit;
+
 import org.junit.Test;
 
 import com.codahale.metrics.Counter;
@@ -55,7 +57,7 @@ public class PropertyTest {
     Property prop = PropertyFactory.getProperty(GaugeProperty.VALUE_DERIVE, gauge);
 
     assertEquals(Type.DERIVE, prop.getType());
-    assertEquals(17, prop.getNumber(gauge, null));
+    assertEquals(17, prop.getNumber(gauge, null, TimeUnit.SECONDS, TimeUnit.SECONDS));
   }
 
   @Test
@@ -63,7 +65,7 @@ public class PropertyTest {
     Property prop = PropertyFactory.getProperty(null, gauge);
 
     assertEquals(Type.GAUGE, prop.getType());
-    assertEquals(17, prop.getNumber(gauge, null));
+    assertEquals(17, prop.getNumber(gauge, null, TimeUnit.SECONDS, TimeUnit.SECONDS));
 
     assertSame(GaugeProperty.VALUE_GAUGE, PropertyFactory.getProperty(null, gauge));
     assertSame(CounterProperty.COUNT, PropertyFactory.getProperty(null, counter));
@@ -101,10 +103,10 @@ public class PropertyTest {
 
   private void assertProperty(Property actual, Type expectedType, Number expectedValue, Metric metric, Metric otherMetric) {
     assertEquals(expectedType, actual.getType());
-    assertEquals(expectedValue, actual.getNumber(metric, null));
+    assertEquals(expectedValue, actual.getNumber(metric, null, TimeUnit.SECONDS, TimeUnit.SECONDS));
 
     try {
-      actual.getNumber(otherMetric, null);
+      actual.getNumber(otherMetric, null, TimeUnit.SECONDS, TimeUnit.SECONDS);
       fail("Must throw IllegalArgumentException");
     } catch(IllegalArgumentException expected) {}
   }

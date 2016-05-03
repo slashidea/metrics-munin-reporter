@@ -24,6 +24,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -38,13 +39,18 @@ public class MetricsCommandProcessor {
   private final MetricRegistry registry;
   private final MuninGraphProvider muninGraphProvider;
   private final Hostname hostname;
+  private final TimeUnit rateUnit;
+  private final TimeUnit durationUnit;
 
   public MetricsCommandProcessor(final MetricRegistry registry,
                                  final MuninGraphProvider muninGraphProvider,
-                                 final Hostname hostname) {
+                                 final Hostname hostname,
+                                 final TimeUnit rateUnit, final TimeUnit durationUnit) {
     this.registry = registry;
     this.muninGraphProvider = muninGraphProvider;
     this.hostname = hostname;
+    this.rateUnit = rateUnit;
+    this.durationUnit = durationUnit;
   }
 
   public List<String> processCommand(final String command, final List<String> args)
@@ -168,7 +174,7 @@ public class MetricsCommandProcessor {
           String muninName = dataSource.getName(name);
 
           output.add(format("%s.value %s", escapeName(muninName, property),
-            NumberUtil.toString(property.getNumber(metric, snapshots.get(name)))));
+            NumberUtil.toString(property.getNumber(metric, snapshots.get(name), rateUnit, durationUnit))));
         }
       }
     }
